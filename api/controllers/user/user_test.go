@@ -1,9 +1,6 @@
 package user
 
 import (
-	"project-api/config"
-	"project-api/models"
-	"project-api/util"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -11,6 +8,10 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"project-api/config"
+	"project-api/models"
+	"project-api/util"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -37,19 +38,19 @@ func setup() {
 	newUser.Password = "password123"
 
 	// user dummy data with model
-	customerModel := models.NewUserModel(db)
-	_, err := customerModel.Insert(newUser)
+	userModel := models.NewUserModel(db)
+	_, err := userModel.Insert(newUser)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func TestGetAllCustomerController(t *testing.T) {
+func TestGetAllUserController(t *testing.T) {
 	// create database connection and create controller
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	userModel := models.NewUserModel(db)
-	customerController := NewController(userModel)
+	userController := NewController(userModel)
 
 	// setting controller
 	e := echo.New()
@@ -58,7 +59,7 @@ func TestGetAllCustomerController(t *testing.T) {
 	context := e.NewContext(req, res)
 	context.SetPath("/users")
 
-	customerController.GetAllUserController(context)
+	userController.GetAllUserController(context)
 
 	// build struct response
 	type Response []struct {
@@ -115,12 +116,12 @@ func TestGetUserController(t *testing.T) {
 	})
 }
 
-func TestPostCustomerController(t *testing.T) {
+func TestPostUserController(t *testing.T) {
 	// create database connection and create controller
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	userModel := models.NewUserModel(db)
-	customerController := NewController(userModel)
+	userController := NewController(userModel)
 
 	// input controller
 	reqBody, _ := json.Marshal(map[string]string{
@@ -135,9 +136,9 @@ func TestPostCustomerController(t *testing.T) {
 	res := httptest.NewRecorder()
 	req.Header.Set("Content-Type", "application/json")
 	context := e.NewContext(req, res)
-	context.SetPath("/customers")
+	context.SetPath("/users")
 
-	customerController.PostUserController(context)
+	userController.PostUserController(context)
 
 	// build struct response
 	type Response struct {
@@ -160,7 +161,7 @@ func TestEditUserController(t *testing.T) {
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	userModel := models.NewUserModel(db)
-	customerController := NewController(userModel)
+	userController := NewController(userModel)
 
 	// input controller
 	reqBody, _ := json.Marshal(map[string]string{
@@ -175,11 +176,11 @@ func TestEditUserController(t *testing.T) {
 	res := httptest.NewRecorder()
 	req.Header.Set("Content-Type", "application/json")
 	context := e.NewContext(req, res)
-	context.SetPath("/customers/:id")
+	context.SetPath("/users/:id")
 	context.SetParamNames("id")
 	context.SetParamValues("1")
 
-	customerController.EditUserController(context)
+	userController.EditUserController(context)
 
 	// build struct response
 	type Response struct {
@@ -197,12 +198,12 @@ func TestEditUserController(t *testing.T) {
 	})
 }
 
-func TestDeleteCustomerController(t *testing.T) {
+func TestDeleteUserController(t *testing.T) {
 	// create database connection and create controller
 	config := config.GetConfig()
 	db := util.MysqlDatabaseConnection(config)
 	userModel := models.NewUserModel(db)
-	customerController := NewController(userModel)
+	userController := NewController(userModel)
 
 	// setting controller
 	e := echo.New()
@@ -214,7 +215,7 @@ func TestDeleteCustomerController(t *testing.T) {
 	context.SetParamNames("id")
 	context.SetParamValues("1")
 
-	customerController.DeleteUserController(context)
+	userController.DeleteUserController(context)
 
 	// build struct response
 	type Response struct {
@@ -226,7 +227,7 @@ func TestDeleteCustomerController(t *testing.T) {
 	json.Unmarshal([]byte(resBody), &response)
 
 	// testing stuff
-	t.Run("PUT /customers/:id", func(t *testing.T) {
+	t.Run("PUT /users/:id", func(t *testing.T) {
 		assert.Equal(t, 200, res.Code)
 		assert.Equal(t, "Successful Operation", response.Message)
 	})
